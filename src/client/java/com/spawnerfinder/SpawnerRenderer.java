@@ -81,8 +81,11 @@ public class SpawnerRenderer implements WorldRenderEvents.BeforeEntities {
         if (SpawnerFinderMod.showStructure) {
             for (SpawnerInfo info : SpawnerFinderMod.foundStructures) {
                 Vec3d center = info.centerPos();
-                if (SpawnerFinderMod.showBeam) drawBeam(vc, positionMatrix, center, cameraPos, 0.6f, 0.0f, 1.0f);
-                if (SpawnerFinderMod.showESP) drawESPBoxCentered(vc, positionMatrix, center, cameraPos, 0.6f, 0.0f, 1.0f);
+                if (SpawnerFinderMod.showBeam) drawBeam(vc, positionMatrix, center, cameraPos, 1.0f, 0.8f, 0.0f);
+                if (SpawnerFinderMod.showESP) {
+                    drawThickESPBoxCentered(vc, positionMatrix, center, cameraPos, 1.0f, 0.8f, 0.0f);
+                    drawESPBoxCentered(vc, positionMatrix, center, cameraPos, 1.0f, 1.0f, 0.5f);
+                }
             }
         }
 
@@ -151,7 +154,6 @@ public class SpawnerRenderer implements WorldRenderEvents.BeforeEntities {
         float x = (float)(center.x - cameraPos.x);
         float y = (float)(center.y - cameraPos.y);
         float z = (float)(center.z - cameraPos.z);
-        // Mở rộng box ra 0.05 mỗi phía để dễ nhìn hơn
         float hs = 0.55f;
 
         float x1 = x - hs;
@@ -161,7 +163,6 @@ public class SpawnerRenderer implements WorldRenderEvents.BeforeEntities {
         float y2 = y + hs;
         float z2 = z + hs;
 
-        // Vẽ mỗi cạnh với lineWidth 6.0f và alpha 1.0 để đậm, rõ
         // Mặt đáy
         vc.vertex(matrix, x1, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(6.0f);
         vc.vertex(matrix, x2, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(6.0f);
@@ -191,5 +192,47 @@ public class SpawnerRenderer implements WorldRenderEvents.BeforeEntities {
         vc.vertex(matrix, x2, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(6.0f);
         vc.vertex(matrix, x1, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(6.0f);
         vc.vertex(matrix, x1, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(6.0f);
+    }
+
+    private void drawThickESPBoxCentered(VertexConsumer vc, Matrix4f matrix, Vec3d center, Vec3d cameraPos, float r, float g, float b) {
+        float x = (float)(center.x - cameraPos.x);
+        float y = (float)(center.y - cameraPos.y);
+        float z = (float)(center.z - cameraPos.z);
+        float hs = 0.58f;
+
+        float x1 = x - hs;
+        float y1 = y - hs;
+        float z1 = z - hs;
+        float x2 = x + hs;
+        float y2 = y + hs;
+        float z2 = z + hs;
+
+        // Viền ngoài dày, lineWidth 12.0f cho box đậm nổi bật
+        vc.vertex(matrix, x1, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+
+        vc.vertex(matrix, x1, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+
+        vc.vertex(matrix, x1, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z1).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x2, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y1, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
+        vc.vertex(matrix, x1, y2, z2).color(r, g, b, 1.0f).normal(0f, 1f, 0f).lineWidth(12.0f);
     }
 }
