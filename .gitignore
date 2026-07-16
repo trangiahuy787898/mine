@@ -1,0 +1,7 @@
+.gradle/
+build/
+bin/
+.vscode/
+META-INF/
+*.jar
+neoforge-installer.jar.log

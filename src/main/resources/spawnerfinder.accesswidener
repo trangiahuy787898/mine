@@ -1,0 +1,3 @@
+accessWidener v2 named
+
+accessible class net/minecraft/client/gui/screen/Screen method addDrawableChild (Lnet/minecraft/client/gui/Element;)Lnet/minecraft/client/gui/Element;

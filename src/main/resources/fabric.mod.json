@@ -1,0 +1,22 @@
+{
+    "schemaVersion": 1,
+    "id": "spawnerfinder",
+    "version": "${version}",
+    "name": "Spawner Finder",
+    "description": "Tìm Blaze Spawner và các spawner khác trong bán kính 6 chunks với beam, ESP và HUD chỉ hướng",
+    "authors": ["SpawnerFinder"],
+    "contact": {},
+    "license": "MIT",
+    "icon": "assets/spawnerfinder/icon.png",
+    "environment": "client",
+    "mixins": ["spawnerfinder.mixins.json"],
+    "entrypoints": {
+        "client": ["com.spawnerfinder.SpawnerFinderMod"]
+    },
+    "depends": {
+        "fabricloader": ">=0.16.0",
+        "fabric-api": "*",
+        "minecraft": ">=1.20",
+        "java": ">=21"
+    }
+}
