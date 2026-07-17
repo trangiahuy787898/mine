@@ -43,6 +43,7 @@ public class AutoSellManager {
         SEND_SELL,
         WAIT_SELL_SCREEN,
         FILL_SHOP,
+        CLOSE_SELL,
         CHECK_CONFIRM,
         NEXT_STACK,
         DONE
@@ -115,6 +116,7 @@ public class AutoSellManager {
                 case SEND_SELL -> sendSell(client);
                 case WAIT_SELL_SCREEN -> waitSellScreen(client);
                 case FILL_SHOP -> fillShop(client);
+                case CLOSE_SELL -> closeSell(client);
                 case CHECK_CONFIRM -> checkConfirm(client);
                 case NEXT_STACK -> nextStack(client);
                 case DONE -> finish(client);
@@ -324,41 +326,24 @@ public class AutoSellManager {
         }
 
         if (!hasItems) {
-            // No more items in player inventory
             delay = 5;
-            state = State.CHECK_CONFIRM;
+            state = State.CLOSE_SELL;
         }
+    }
+
+    private static void closeSell(MinecraftClient client) {
+        if (client.currentScreen != null) {
+            client.player.closeHandledScreen();
+        }
+        delay = 10;
+        state = State.CHECK_CONFIRM;
     }
 
     private static void checkConfirm(MinecraftClient client) {
         ClientPlayerEntity player = client.player;
         if (player == null) return;
 
-        // First, try to find a confirm/sell slot within the current shop GUI
-        if (client.currentScreen instanceof HandledScreen screen) {
-            ScreenHandler handler = screen.getScreenHandler();
-            for (Slot slot : handler.slots) {
-                ItemStack stack = slot.getStack();
-                if (!stack.isEmpty() && slot.inventory != player.getInventory()) {
-                    String name = stack.getName().getString().toLowerCase();
-                    if (name.contains("đồng ý") || name.contains("confirm") || name.contains("sell") || name.contains("bán")) {
-                        client.interactionManager.clickSlot(handler.syncId, slot.id, 0, SlotActionType.PICKUP, player);
-                        delay = 10;
-                        // Check if inventory still has items
-                        checkAndContinue(client);
-                        return;
-                    }
-                }
-            }
-        }
-
-        // No confirm button found inside GUI → close it
-        if (client.currentScreen != null) {
-            client.player.closeHandledScreen();
-        }
-        delay = 10;
-
-        // Check if a confirmation dialog appeared
+        // Check if a confirmation dialog appeared after closing shop
         if (client.currentScreen instanceof HandledScreen confirmScreen) {
             ScreenHandler h = confirmScreen.getScreenHandler();
             for (Slot slot : h.slots) {
@@ -368,12 +353,14 @@ public class AutoSellManager {
                     if (name.contains("đồng ý") || name.contains("confirm") || name.contains("bán")) {
                         client.interactionManager.clickSlot(h.syncId, slot.id, 0, SlotActionType.PICKUP, player);
                         delay = 10;
-                        break;
+                        checkAndContinue(client);
+                        return;
                     }
                 }
             }
         }
 
+        // No confirmation dialog, proceed
         checkAndContinue(client);
     }
 
@@ -441,6 +428,7 @@ public class AutoSellManager {
             case SEND_SELL -> "§eMở shop...";
             case WAIT_SELL_SCREEN -> "§eĐợi shop...";
             case FILL_SHOP -> "§aĐang fill shop...";
+            case CLOSE_SELL -> "§eĐóng shop...";
             case CHECK_CONFIRM -> "§6Xác nhận bán...";
             case NEXT_STACK -> "§eChuyển dãy rương...";
             case DONE -> "§a§lHOÀN TẤT!";
