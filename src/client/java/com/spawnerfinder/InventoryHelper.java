@@ -28,6 +28,12 @@ public class InventoryHelper {
         return cooldown > 0;
     }
 
+    private static void clickSlot(MinecraftClient client, ScreenHandler handler, int slotId, int button, SlotActionType action) {
+        if (client.interactionManager != null) {
+            client.interactionManager.clickSlot(handler.syncId, slotId, button, action, client.player);
+        }
+    }
+
     public static void sortInventory(MinecraftClient client, Target target) {
         if (cooldown > 0) return;
         cooldown = 10;
@@ -53,11 +59,11 @@ public class InventoryHelper {
 
         for (Slot slot : targetSlots) {
             if (!slot.getStack().isEmpty()) {
-                handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
+                clickSlot(client, handler, slot.id, 0, SlotActionType.QUICK_MOVE);
             }
         }
 
-        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
+        clickSlot(client, handler, -999, 0, SlotActionType.PICKUP);
 
         for (ItemStack desired : items) {
             for (Slot slot : handler.slots) {
@@ -65,13 +71,13 @@ public class InventoryHelper {
                     ? (slot.inventory == player.getInventory() && slot.getIndex() < 36)
                     : (slot.inventory != player.getInventory());
                 if (isOtherSlot && !slot.getStack().isEmpty() && slot.getStack().getItem() == desired.getItem()) {
-                    handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
+                    clickSlot(client, handler, slot.id, 0, SlotActionType.QUICK_MOVE);
                     break;
                 }
             }
         }
 
-        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
+        clickSlot(client, handler, -999, 0, SlotActionType.PICKUP);
 
         player.sendMessage(Text.literal("§6[SpawnerFinder] §aĐã sắp xếp!"), true);
     }
@@ -89,7 +95,7 @@ public class InventoryHelper {
         for (Slot slot : targetSlots) {
             ItemStack stack = slot.getStack();
             if (!stack.isEmpty()) {
-                handler.onSlotClick(slot.id, 1, SlotActionType.THROW, player);
+                clickSlot(client, handler, slot.id, 1, SlotActionType.THROW);
                 count += stack.getCount();
             }
         }

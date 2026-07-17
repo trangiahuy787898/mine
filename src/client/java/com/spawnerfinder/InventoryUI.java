@@ -32,6 +32,13 @@ public class InventoryUI {
         if (SpawnerFinderMod.enabled) {
             drawCenterArrow(context, client, player);
         }
+
+        // Hiển thị trạng thái AutoSell
+        String status = AutoSellManager.getStatusText();
+        if (status != null) {
+            context.drawCenteredTextWithShadow(client.textRenderer,
+                Text.literal(status), x + backgroundWidth / 2, y - 15, 0xFFFFFF);
+        }
     }
 
     public static boolean onMouseClicked(int x, int y, int backgroundWidth, int backgroundHeight, double mouseX, double mouseY, int button) {
@@ -115,7 +122,7 @@ public class InventoryUI {
         String dropTooltip = container ? "§cVứt rương" : "§cVứt hành trang (trừ đồ đang mặc)";
 
         drawButton(context, client, btnX, btnY, "S", sortTooltip, isInside(mouseX, mouseY, btnX, btnY, BTN_SIZE, BTN_SIZE));
-        drawButton(context, client, btnX + BTN_SIZE + BTN_GAP, btnY, "D", dropTooltip, isInside(mouseX, mouseY, btnX + BTN_SIZE + BTN_GAP, btnY, BTN_SIZE, BTN_SIZE));
+        drawButton(context, client, btnX + BTN_SIZE + BTN_GAP, btnY, "T", dropTooltip, isInside(mouseX, mouseY, btnX + BTN_SIZE + BTN_GAP, btnY, BTN_SIZE, BTN_SIZE));
     }
 
     private static void drawCenterArrow(DrawContext context, MinecraftClient client, ClientPlayerEntity player) {

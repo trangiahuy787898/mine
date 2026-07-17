@@ -1,6 +1,7 @@
 package com.spawnerfinder.mixin;
 
 import com.spawnerfinder.InventoryUI;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,8 +25,9 @@ public class HandledScreenMixin {
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (InventoryUI.onMouseClicked(x, y, backgroundWidth, backgroundHeight, mouseX, mouseY, button)) {
+    private void onMouseClicked(Click click, boolean unknown, CallbackInfoReturnable<Boolean> cir) {
+        if (InventoryUI.onMouseClicked(x, y, backgroundWidth, backgroundHeight, click.x(), click.y(), click.button())) {
+            cir.cancel();
             cir.setReturnValue(true);
         }
     }

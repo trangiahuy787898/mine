@@ -39,6 +39,7 @@ public class SpawnerFinderMod implements ClientModInitializer {
     private static KeyBinding toggleKey;
     private static KeyBinding cycleViewKey;
     private static KeyBinding nightVisionKey;
+    private static KeyBinding autoSellKey;
 
     @Override
     public void onInitializeClient() {
@@ -60,6 +61,13 @@ public class SpawnerFinderMod implements ClientModInitializer {
             "key.spawnerfinder.nightvision",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_F8,
+            KeyBinding.Category.MISC
+        ));
+
+        autoSellKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.spawnerfinder.autosell",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_F9,
             KeyBinding.Category.MISC
         ));
 
@@ -136,10 +144,7 @@ public class SpawnerFinderMod implements ClientModInitializer {
 
         if (nightVisionCooldown > 0) nightVisionCooldown--;
 
-        var window = client.getWindow();
-        boolean f8Down = window != null && InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_F8);
-
-        if (f8Down && nightVisionCooldown == 0) {
+        if (nightVisionKey.wasPressed() && nightVisionCooldown == 0) {
             nightVision = !nightVision;
             nightVisionCooldown = 10;
             if (nightVision) {
@@ -176,6 +181,11 @@ public class SpawnerFinderMod implements ClientModInitializer {
             }
         }
 
+        if (autoSellKey.wasPressed()) {
+            AutoSellManager.toggle();
+        }
+
+        AutoSellManager.tick(client);
         InventoryHelper.tick(client);
 
         if (!enabled) return;
