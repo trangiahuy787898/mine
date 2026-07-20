@@ -2,7 +2,7 @@
     "key.spawnerfinder.toggle": "Bật/Tắt Spawner Finder",
     "key.spawnerfinder.cycle": "Chuyển chế độ hiển thị",
     "key.spawnerfinder.nightvision": "Bật/Tắt Night Vision",
-    "key.spawnerfinder.automine": "Bật/Tắt Auto Mine",
-    "key.spawnerfinder.autosell": "Bật/Tắt AutoSell",
+    "key.spawnerfinder.autotrade": "Bật/Tắt Auto Trade",
+    "key.spawnerfinder.scanextra": "Bật/Tắt quét mở rộng (Rương, Pillager, Cấu trúc)",
     "category.spawnerfinder": "Spawner Finder"
 }

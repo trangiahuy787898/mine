@@ -10,6 +10,7 @@
     "icon": "assets/spawnerfinder/icon.png",
     "environment": "client",
     "mixins": ["spawnerfinder.mixins.json"],
+    "accessWidener": "spawnerfinder.accesswidener",
     "entrypoints": {
         "client": ["com.spawnerfinder.SpawnerFinderMod"]
     },

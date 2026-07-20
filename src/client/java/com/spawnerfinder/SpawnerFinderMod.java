@@ -1,6 +1,7 @@
 package com.spawnerfinder;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -23,15 +24,19 @@ public class SpawnerFinderMod implements ClientModInitializer {
     public static final List<SpawnerInfo> foundEnderChests = new ArrayList<>();
     public static final List<SpawnerInfo> foundPillagers = new ArrayList<>();
     public static final List<SpawnerInfo> foundStructures = new ArrayList<>();
+
     public static boolean showSpawner = true;
     public static boolean showShulker = true;
+    public static boolean showESP = true;
+    public static boolean showBeam = true;
+    public static boolean showHUD = true;
+
+    public static boolean scanExtra = false;
     public static boolean showChest = true;
     public static boolean showEnderChest = true;
     public static boolean showPillager = true;
     public static boolean showStructure = true;
-    public static boolean showESP = true;
-    public static boolean showBeam = true;
-    public static boolean showHUD = true;
+
     public static boolean nightVision = false;
     private static double previousGamma = 0.5;
     private static int nightVisionCooldown = 0;
@@ -39,7 +44,8 @@ public class SpawnerFinderMod implements ClientModInitializer {
     private static KeyBinding toggleKey;
     private static KeyBinding cycleViewKey;
     private static KeyBinding nightVisionKey;
-    private static KeyBinding autoSellKey;
+    private static KeyBinding autoTradeKey;
+    private static KeyBinding scanExtraKey;
 
     @Override
     public void onInitializeClient() {
@@ -64,15 +70,25 @@ public class SpawnerFinderMod implements ClientModInitializer {
             KeyBinding.Category.MISC
         ));
 
-        autoSellKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.spawnerfinder.autosell",
+        autoTradeKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.spawnerfinder.autotrade",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_F10,
+            KeyBinding.Category.MISC
+        ));
+
+        scanExtraKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.spawnerfinder.scanextra",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_F9,
             KeyBinding.Category.MISC
         ));
 
+        ClientChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
+            SpawnerTracker.onChunkLoad(chunk, world);
+        });
+
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
-        InventoryUI.register();
         HudRenderCallback.EVENT.register(new SpawnerHUD());
         WorldRenderEvents.BEFORE_ENTITIES.register(new SpawnerRenderer());
     }
@@ -81,39 +97,35 @@ public class SpawnerFinderMod implements ClientModInitializer {
         if (toggleKey.wasPressed()) {
             enabled = !enabled;
             if (!enabled) {
-                foundSpawners.clear();
-                foundShulkers.clear();
-                foundChests.clear();
-                foundEnderChests.clear();
-                foundPillagers.clear();
-                foundStructures.clear();
+                SpawnerTracker.stopProbing();
+                SpawnerTracker.resetCaches();
+            } else {
+                if (!scanExtra) {
+                    foundChests.clear();
+                    foundEnderChests.clear();
+                    foundPillagers.clear();
+                    foundStructures.clear();
+                }
+                SpawnerTracker.startProbing();
             }
             if (client.player != null) {
                 client.player.sendMessage(
-                    Text.literal("§6[SpawnerFinder] §" + (enabled ? "aBẬT" : "cTẮT")),
+                    Text.literal("§6[SpawnerFinder] §" + (enabled ? "aBẬT §7(Đang quét " + SpawnerTracker.CHUNK_RADIUS + "x" + SpawnerTracker.CHUNK_RADIUS + " chunks...)" : "cTẮT")),
                     true
                 );
             }
         }
 
         if (cycleViewKey.wasPressed()) {
-            if (showESP && showBeam && showHUD && showSpawner && showShulker && showChest && showEnderChest && showPillager && showStructure) {
+            if (showESP && showBeam && showHUD && showSpawner && showShulker) {
                 showESP = false;
-            } else if (!showESP && showBeam && showHUD && showSpawner && showShulker && showChest && showEnderChest && showPillager && showStructure) {
+            } else if (!showESP && showBeam && showHUD && showSpawner && showShulker) {
                 showBeam = false;
-            } else if (!showESP && !showBeam && showHUD && showSpawner && showShulker && showChest && showEnderChest && showPillager && showStructure) {
+            } else if (!showESP && !showBeam && showHUD && showSpawner && showShulker) {
                 showHUD = false;
-            } else if (!showESP && !showBeam && !showHUD && showSpawner && showShulker && showChest && showEnderChest && showPillager && showStructure) {
+            } else if (!showESP && !showBeam && !showHUD && showSpawner && showShulker) {
                 showSpawner = false;
-            } else if (!showESP && !showBeam && !showHUD && !showSpawner && showShulker && showChest && showEnderChest && showPillager && showStructure) {
-                showChest = false;
-            } else if (!showESP && !showBeam && !showHUD && !showSpawner && !showChest && showShulker && showEnderChest && showPillager && showStructure) {
-                showEnderChest = false;
-            } else if (!showESP && !showBeam && !showHUD && !showSpawner && !showChest && !showEnderChest && showShulker && showPillager && showStructure) {
-                showPillager = false;
-            } else if (!showESP && !showBeam && !showHUD && !showSpawner && !showChest && !showEnderChest && !showPillager && showShulker && showStructure) {
-                showStructure = false;
-            } else if (!showESP && !showBeam && !showHUD && !showSpawner && !showChest && !showEnderChest && !showPillager && !showStructure && showShulker) {
+            } else if (!showESP && !showBeam && !showHUD && !showSpawner && showShulker) {
                 showShulker = false;
             } else {
                 showESP = true;
@@ -121,10 +133,6 @@ public class SpawnerFinderMod implements ClientModInitializer {
                 showHUD = true;
                 showSpawner = true;
                 showShulker = true;
-                showChest = true;
-                showEnderChest = true;
-                showPillager = true;
-                showStructure = true;
             }
             if (client.player != null) {
                 client.player.sendMessage(
@@ -132,10 +140,6 @@ public class SpawnerFinderMod implements ClientModInitializer {
                         " §fBeam: " + (showBeam ? "§a✔" : "§c✘") +
                         " §fHUD: " + (showHUD ? "§a✔" : "§c✘") +
                         " §fSpawner: " + (showSpawner ? "§a✔" : "§c✘") +
-                        " §fChest: " + (showChest ? "§a✔" : "§c✘") +
-                        " §fEnder: " + (showEnderChest ? "§a✔" : "§c✘") +
-                        " §fPillager: " + (showPillager ? "§a✔" : "§c✘") +
-                        " §fStructure: " + (showStructure ? "§a✔" : "§c✘") +
                         " §fShulker: " + (showShulker ? "§a✔" : "§c✘")),
                     true
                 );
@@ -149,7 +153,6 @@ public class SpawnerFinderMod implements ClientModInitializer {
             nightVisionCooldown = 10;
             if (nightVision) {
                 previousGamma = client.options.getGamma().getValue();
-                // Gamma 4.5 = nhìn tối rõ hơn nhưng không bị chói khi ra vùng sáng
                 client.options.getGamma().setValue(4.5);
                 if (client.player != null) {
                     client.player.addStatusEffect(new StatusEffectInstance(
@@ -173,7 +176,6 @@ public class SpawnerFinderMod implements ClientModInitializer {
         }
 
         if (nightVision) {
-            // Không cưỡng bức gamma liên tục — chỉ đảm bảo hiệu ứng Night Vision còn tồn tại
             if (client.player != null && !client.player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
                 client.player.addStatusEffect(new StatusEffectInstance(
                     StatusEffects.NIGHT_VISION, -1, 0, false, false, false
@@ -181,20 +183,33 @@ public class SpawnerFinderMod implements ClientModInitializer {
             }
         }
 
-        if (autoSellKey.wasPressed()) {
-            AutoSellManager.toggle();
+        if (autoTradeKey.wasPressed()) {
+            AutoTradeManager.toggle();
         }
-
-        AutoSellManager.tick(client);
+        AutoTradeManager.tick(client);
         InventoryHelper.tick(client);
 
-        if (!enabled) return;
+        if (scanExtraKey.wasPressed()) {
+            scanExtra = !scanExtra;
+            if (client.player != null) {
+                client.player.sendMessage(
+                    Text.literal("§6[SpawnerFinder] §fQuét mở rộng: " + (scanExtra ? "§aBẬT §7(rương, pillager, cấu trúc)" : "§cTẮT")),
+                    true
+                );
+            }
+            if (!scanExtra) {
+                foundChests.clear();
+                foundEnderChests.clear();
+                foundPillagers.clear();
+                foundStructures.clear();
+                SpawnerTracker.clearExtraCaches();
+            }
+        }
+
+        if (!enabled && !scanExtra) return;
         if (client.world == null || client.player == null) return;
 
-        SpawnerTracker.scan(client);
-        ChestTracker.scan(client);
-        PillagerTracker.scan(client);
-        StructureTracker.scan(client);
+        SpawnerTracker.tick(client);
     }
 
     public static SpawnerInfo findNearest() {

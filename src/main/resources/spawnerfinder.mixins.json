@@ -1,11 +1,11 @@
 {
-    "required": true,
+    "required": false,
     "package": "com.spawnerfinder.mixin",
     "compatibilityLevel": "JAVA_21",
     "client": [
         "HandledScreenMixin"
     ],
     "injectors": {
-        "defaultRequire": 1
+        "defaultRequire": 0
     }
 }

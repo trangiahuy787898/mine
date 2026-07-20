@@ -1,8 +1,8 @@
 {
-    "key.spawnerfinder.toggle": "Bật/Tắt Spawner Finder",
-    "key.spawnerfinder.cycle": "Chuyển chế độ hiển thị (ESP/Beam/HUD)",
-    "key.spawnerfinder.nightvision": "Bật/Tắt Night Vision",
-    "key.spawnerfinder.automine": "Bật/Tắt Auto Mine",
-    "key.spawnerfinder.autosell": "Bật/Tắt AutoSell",
+    "key.spawnerfinder.toggle": "Toggle Spawner Finder",
+    "key.spawnerfinder.cycle": "Cycle display mode (ESP/Beam/HUD)",
+    "key.spawnerfinder.nightvision": "Toggle Night Vision",
+    "key.spawnerfinder.autotrade": "Toggle Auto Trade",
+    "key.spawnerfinder.scanextra": "Toggle Extra Scan (Chests, Pillagers, Structures)",
     "category.spawnerfinder": "Spawner Finder"
 }

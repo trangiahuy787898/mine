@@ -6,17 +6,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class InventoryHelper {
-    public enum Target {
-        CONTAINER,
-        PLAYER
-    }
+    public enum Target { CONTAINER, PLAYER }
 
     private static int cooldown = 0;
 
@@ -24,46 +19,33 @@ public class InventoryHelper {
         if (cooldown > 0) cooldown--;
     }
 
-    public static boolean isOnCooldown() {
-        return cooldown > 0;
-    }
+    public static boolean isOnCooldown() { return cooldown > 0; }
 
-    private static void clickSlot(MinecraftClient client, ScreenHandler handler, int slotId, int button, SlotActionType action) {
-        if (client.interactionManager != null) {
-            client.interactionManager.clickSlot(handler.syncId, slotId, button, action, client.player);
-        }
-    }
-
-    public static void sortInventory(MinecraftClient client, Target target) {
-        if (cooldown > 0) return;
+    public static boolean sortInventory(MinecraftClient client, Target target) {
+        if (cooldown > 0) return false;
         cooldown = 10;
         ClientPlayerEntity player = client.player;
-        if (player == null) return;
+        if (player == null) return false;
         ScreenHandler handler = player.currentScreenHandler;
-        if (handler == null) return;
+        if (handler == null) return false;
 
         List<Slot> targetSlots = getSlotsForTarget(handler, player, target);
-        if (targetSlots.isEmpty()) return;
+        if (targetSlots.isEmpty()) return false;
 
         List<ItemStack> items = new ArrayList<>();
         for (Slot slot : targetSlots) {
             ItemStack stack = slot.getStack();
-            if (!stack.isEmpty()) {
-                items.add(stack.copy());
-            }
+            if (!stack.isEmpty()) items.add(stack.copy());
         }
-
-        if (items.isEmpty()) return;
+        if (items.isEmpty()) return false;
 
         items.sort(Comparator.comparing(s -> s.getItem().toString()));
 
         for (Slot slot : targetSlots) {
-            if (!slot.getStack().isEmpty()) {
-                clickSlot(client, handler, slot.id, 0, SlotActionType.QUICK_MOVE);
-            }
+            if (!slot.getStack().isEmpty())
+                handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
         }
-
-        clickSlot(client, handler, -999, 0, SlotActionType.PICKUP);
+        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
 
         for (ItemStack desired : items) {
             for (Slot slot : handler.slots) {
@@ -71,50 +53,56 @@ public class InventoryHelper {
                     ? (slot.inventory == player.getInventory() && slot.getIndex() < 36)
                     : (slot.inventory != player.getInventory());
                 if (isOtherSlot && !slot.getStack().isEmpty() && slot.getStack().getItem() == desired.getItem()) {
-                    clickSlot(client, handler, slot.id, 0, SlotActionType.QUICK_MOVE);
+                    handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
                     break;
                 }
             }
         }
-
-        clickSlot(client, handler, -999, 0, SlotActionType.PICKUP);
-
-        player.sendMessage(Text.literal("§6[SpawnerFinder] §aĐã sắp xếp!"), true);
+        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
+        return true;
     }
 
-    public static void throwAll(MinecraftClient client, Target target) {
-        if (cooldown > 0) return;
+    public static boolean throwAll(MinecraftClient client, Target target) {
+        if (cooldown > 0) return false;
         cooldown = 10;
         ClientPlayerEntity player = client.player;
-        if (player == null) return;
+        if (player == null) return false;
         ScreenHandler handler = player.currentScreenHandler;
-        if (handler == null) return;
+        if (handler == null) return false;
 
         List<Slot> targetSlots = getSlotsForTarget(handler, player, target);
-        int count = 0;
         for (Slot slot : targetSlots) {
-            ItemStack stack = slot.getStack();
-            if (!stack.isEmpty()) {
-                clickSlot(client, handler, slot.id, 1, SlotActionType.THROW);
-                count += stack.getCount();
-            }
+            if (!slot.getStack().isEmpty())
+                handler.onSlotClick(slot.id, 1, SlotActionType.THROW, player);
         }
+        return true;
+    }
 
-        String targetName = (target == Target.CONTAINER) ? "rương" : "hành trang";
-        player.sendMessage(Text.literal("§6[SpawnerFinder] §aĐã vứt " + count + " item khỏi " + targetName + "!"), true);
+    public static boolean transferAll(MinecraftClient client, Target target) {
+        if (cooldown > 0) return false;
+        cooldown = 10;
+        ClientPlayerEntity player = client.player;
+        if (player == null) return false;
+        ScreenHandler handler = player.currentScreenHandler;
+        if (handler == null) return false;
+
+        List<Slot> targetSlots = getSlotsForTarget(handler, player, target);
+        for (Slot slot : targetSlots) {
+            if (!slot.getStack().isEmpty())
+                handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
+        }
+        return true;
     }
 
     private static List<Slot> getSlotsForTarget(ScreenHandler handler, ClientPlayerEntity player, Target target) {
         List<Slot> result = new ArrayList<>();
         for (Slot slot : handler.slots) {
             if (target == Target.CONTAINER) {
-                if (slot.inventory != player.getInventory()) {
+                if (slot.inventory != player.getInventory())
                     result.add(slot);
-                }
             } else {
-                if (slot.inventory == player.getInventory() && slot.getIndex() < 36) {
+                if (slot.inventory == player.getInventory() && slot.getIndex() < 36)
                     result.add(slot);
-                }
             }
         }
         return result;
