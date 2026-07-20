@@ -5,3 +5,9 @@ bin/
 META-INF/
 *.jar
 neoforge-installer.jar.log
+*.hprof
+assets/
+net/
+*.refmap.json
+fabric.mod.json
+LICENSE-*
