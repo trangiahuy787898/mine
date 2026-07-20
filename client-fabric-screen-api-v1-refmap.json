@@ -1,0 +1,86 @@
+{
+  "mappings": {
+    "net/fabricmc/fabric/mixin/screen/GameRendererMixin": {
+      "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_437;method_47413(Lnet/minecraft/class_332;IIF)V",
+      "render": "Lnet/minecraft/class_757;method_3192(Lnet/minecraft/class_9779;Z)V"
+    },
+    "net/fabricmc/fabric/mixin/screen/HandledScreenMixin": {
+      "mouseDragged": "Lnet/minecraft/class_465;method_25403(DDIDD)Z",
+      "mouseReleased": "Lnet/minecraft/class_465;method_25406(DDI)Z"
+    },
+    "net/fabricmc/fabric/mixin/screen/KeyboardMixin": {
+      "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z": "Lnet/minecraft/class_437;method_25404(III)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;keyReleased(III)Z": "Lnet/minecraft/class_437;method_16803(III)Z",
+      "method_1454(ILnet/minecraft/client/gui/screen/Screen;[ZIII)V": "Lnet/minecraft/class_309;method_1454(ILnet/minecraft/class_437;[ZIII)V"
+    },
+    "net/fabricmc/fabric/mixin/screen/MinecraftClientMixin": {
+      "Lnet/minecraft/client/MinecraftClient;render(Z)V": "Lnet/minecraft/class_310;method_1523(Z)V",
+      "Lnet/minecraft/client/gui/screen/Screen;removed()V": "Lnet/minecraft/class_437;method_25432()V",
+      "Lnet/minecraft/client/gui/screen/Screen;tick()V": "Lnet/minecraft/class_437;method_25393()V",
+      "Lnet/minecraft/client/gui/screen/world/LevelLoadingScreen;tick()V": "Lnet/minecraft/class_3928;method_25393()V",
+      "method_1572": "Lnet/minecraft/class_310;method_1572()V",
+      "setScreen": "Lnet/minecraft/class_310;method_1507(Lnet/minecraft/class_437;)V",
+      "startIntegratedServer": "Lnet/minecraft/class_310;method_29610(Lnet/minecraft/class_32$class_5143;Lnet/minecraft/class_3283;Lnet/minecraft/class_6904;Z)V",
+      "stop": "Lnet/minecraft/class_310;method_1490()V"
+    },
+    "net/fabricmc/fabric/mixin/screen/MouseMixin": {
+      "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z": "Lnet/minecraft/class_437;method_25402(DDI)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z": "Lnet/minecraft/class_437;method_25406(DDI)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z": "Lnet/minecraft/class_437;method_25401(DDDD)Z",
+      "method_1605([ZLnet/minecraft/client/gui/screen/Screen;DDI)V": "Lnet/minecraft/class_312;method_1605([ZLnet/minecraft/class_437;DDI)V",
+      "method_1611([ZLnet/minecraft/client/gui/screen/Screen;DDI)V": "Lnet/minecraft/class_312;method_1611([ZLnet/minecraft/class_437;DDI)V",
+      "onMouseScroll": "Lnet/minecraft/class_312;method_1598(JDD)V"
+    },
+    "net/fabricmc/fabric/mixin/screen/ScreenAccessor": {
+      "client": "field_22787:Lnet/minecraft/class_310;",
+      "textRenderer": "field_22793:Lnet/minecraft/class_327;"
+    },
+    "net/fabricmc/fabric/mixin/screen/ScreenMixin": {
+      "init(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25423(Lnet/minecraft/class_310;II)V",
+      "resize": "Lnet/minecraft/class_437;method_25410(Lnet/minecraft/class_310;II)V"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "net/fabricmc/fabric/mixin/screen/GameRendererMixin": {
+        "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_437;method_47413(Lnet/minecraft/class_332;IIF)V",
+        "render": "Lnet/minecraft/class_757;method_3192(Lnet/minecraft/class_9779;Z)V"
+      },
+      "net/fabricmc/fabric/mixin/screen/HandledScreenMixin": {
+        "mouseDragged": "Lnet/minecraft/class_465;method_25403(DDIDD)Z",
+        "mouseReleased": "Lnet/minecraft/class_465;method_25406(DDI)Z"
+      },
+      "net/fabricmc/fabric/mixin/screen/KeyboardMixin": {
+        "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z": "Lnet/minecraft/class_437;method_25404(III)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;keyReleased(III)Z": "Lnet/minecraft/class_437;method_16803(III)Z",
+        "method_1454(ILnet/minecraft/client/gui/screen/Screen;[ZIII)V": "Lnet/minecraft/class_309;method_1454(ILnet/minecraft/class_437;[ZIII)V"
+      },
+      "net/fabricmc/fabric/mixin/screen/MinecraftClientMixin": {
+        "Lnet/minecraft/client/MinecraftClient;render(Z)V": "Lnet/minecraft/class_310;method_1523(Z)V",
+        "Lnet/minecraft/client/gui/screen/Screen;removed()V": "Lnet/minecraft/class_437;method_25432()V",
+        "Lnet/minecraft/client/gui/screen/Screen;tick()V": "Lnet/minecraft/class_437;method_25393()V",
+        "Lnet/minecraft/client/gui/screen/world/LevelLoadingScreen;tick()V": "Lnet/minecraft/class_3928;method_25393()V",
+        "method_1572": "Lnet/minecraft/class_310;method_1572()V",
+        "setScreen": "Lnet/minecraft/class_310;method_1507(Lnet/minecraft/class_437;)V",
+        "startIntegratedServer": "Lnet/minecraft/class_310;method_29610(Lnet/minecraft/class_32$class_5143;Lnet/minecraft/class_3283;Lnet/minecraft/class_6904;Z)V",
+        "stop": "Lnet/minecraft/class_310;method_1490()V"
+      },
+      "net/fabricmc/fabric/mixin/screen/MouseMixin": {
+        "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z": "Lnet/minecraft/class_437;method_25402(DDI)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z": "Lnet/minecraft/class_437;method_25406(DDI)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z": "Lnet/minecraft/class_437;method_25401(DDDD)Z",
+        "method_1605([ZLnet/minecraft/client/gui/screen/Screen;DDI)V": "Lnet/minecraft/class_312;method_1605([ZLnet/minecraft/class_437;DDI)V",
+        "method_1611([ZLnet/minecraft/client/gui/screen/Screen;DDI)V": "Lnet/minecraft/class_312;method_1611([ZLnet/minecraft/class_437;DDI)V",
+        "onMouseScroll": "Lnet/minecraft/class_312;method_1598(JDD)V"
+      },
+      "net/fabricmc/fabric/mixin/screen/ScreenAccessor": {
+        "client": "field_22787:Lnet/minecraft/class_310;",
+        "textRenderer": "field_22793:Lnet/minecraft/class_327;"
+      },
+      "net/fabricmc/fabric/mixin/screen/ScreenMixin": {
+        "init(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25423(Lnet/minecraft/class_310;II)V",
+        "resize": "Lnet/minecraft/class_437;method_25410(Lnet/minecraft/class_310;II)V"
+      }
+    }
+  }
+}

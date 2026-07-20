@@ -2,15 +2,12 @@
     "schemaVersion": 1,
     "id": "spawnerfinder",
     "version": "${version}",
-    "name": "Spawner Finder",
-    "description": "Tìm Blaze Spawner và các spawner khác trong bán kính 6 chunks với beam, ESP và HUD chỉ hướng",
+    "name": "Inventory Helper",
+    "description": "Sort, transfer và throw đồ trong rương và hành trang",
     "authors": ["SpawnerFinder"],
     "contact": {},
     "license": "MIT",
-    "icon": "assets/spawnerfinder/icon.png",
     "environment": "client",
-    "mixins": ["spawnerfinder.mixins.json"],
-    "accessWidener": "spawnerfinder.accesswidener",
     "entrypoints": {
         "client": ["com.spawnerfinder.SpawnerFinderMod"]
     },

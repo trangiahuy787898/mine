@@ -1,67 +1,140 @@
 package com.spawnerfinder;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
+
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class InventoryUI {
-    private static final int BTN_SIZE = 12;
-    private static final int BTN_GAP = 2;
 
-    public static void onRender(HandledScreen<?> screen, int x, int y, int backgroundWidth, int backgroundHeight, DrawContext context, int mouseX, int mouseY, float delta) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
-        if (player == null) return;
+    public static int OFFSET_S_X = 0;
+    public static int OFFSET_S_Y = 0;
+    public static int OFFSET_C_X = 0;
+    public static int OFFSET_C_Y = 0;
+    public static int OFFSET_T_X = 0;
+    public static int OFFSET_T_Y = 0;
 
-        ScreenHandler handler = screen.getScreenHandler();
-        boolean hasContainer = hasContainerSlots(handler, player);
+    public static final Map<ButtonWidget, String> BUTTON_TYPES = new HashMap<>();
+    static ButtonWidget dragging = null;
+    static boolean dragMoved = false;
+    static double dragStartX, dragStartY;
 
-        if (hasContainer)
-            drawButtons(context, client, handler, player, x, y, true, mouseX, mouseY);
-        drawButtons(context, client, handler, player, x, y, false, mouseX, mouseY);
+    public static void loadConfig() {
+        Path path = Paths.get("config", "spawnerfinder.json");
+        java.io.File file = path.toFile();
+        if (!file.exists()) {
+            saveConfig();
+            return;
+        }
+        try (FileReader reader = new FileReader(file)) {
+            InventoryUIConfig cfg = new Gson().fromJson(reader, InventoryUIConfig.class);
+            if (cfg != null) {
+                OFFSET_S_X = cfg.s_x;
+                OFFSET_S_Y = cfg.s_y;
+                OFFSET_C_X = cfg.c_x;
+                OFFSET_C_Y = cfg.c_y;
+                OFFSET_T_X = cfg.t_x;
+                OFFSET_T_Y = cfg.t_y;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public static boolean onMouseClicked(int x, int y, int backgroundWidth, int backgroundHeight, double mouseX, double mouseY, int button) {
-        if (button != 0) return false;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (!(client.currentScreen instanceof HandledScreen<?> screen)) return false;
-        if (client.player == null) return false;
+    public static void saveConfig() {
+        Path path = Paths.get("config", "spawnerfinder.json");
+        path.getParent().toFile().mkdirs();
+        InventoryUIConfig cfg = new InventoryUIConfig();
+        cfg.s_x = OFFSET_S_X; cfg.s_y = OFFSET_S_Y;
+        cfg.c_x = OFFSET_C_X; cfg.c_y = OFFSET_C_Y;
+        cfg.t_x = OFFSET_T_X; cfg.t_y = OFFSET_T_Y;
+        try (java.io.FileWriter writer = new java.io.FileWriter(path.toFile())) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(cfg, writer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    static {
+        loadConfig();
+    }
+
+    public static List<ButtonWidget> createButtons(HandledScreen<?> screen, int scaledWidth, int scaledHeight) {
+        List<ButtonWidget> buttons = new ArrayList<>();
+        if (!(screen instanceof GenericContainerScreen || screen instanceof InventoryScreen || screen instanceof ShulkerBoxScreen)) return buttons;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientPlayerEntity player = client.player;
+        if (player == null) return buttons;
         ScreenHandler handler = screen.getScreenHandler();
-        boolean hasContainer = hasContainerSlots(handler, client.player);
+
+        boolean hasContainer = hasContainerSlots(handler, player);
 
         if (hasContainer) {
-            int[] bounds = getGroupBounds(handler, client.player, true);
+            int[] cBounds = getGroupBounds(handler, player, true);
+            if (cBounds != null) {
+                addHorizontalBtnGroup(buttons, cBounds[2], cBounds[3] + 4, 14, 4,
+                    b -> InventoryHelper.sortInventory(client, InventoryHelper.Target.CONTAINER),
+                    b -> InventoryHelper.transferAll(client, InventoryHelper.Target.CONTAINER),
+                    b -> InventoryHelper.throwAll(client, InventoryHelper.Target.CONTAINER));
+            }
+
+            int[] pBounds = getGroupBounds(handler, player, false);
+            if (pBounds != null) {
+                addHorizontalBtnGroup(buttons, pBounds[2], pBounds[3] + 4, 14, 4,
+                    b -> InventoryHelper.sortInventory(client, InventoryHelper.Target.PLAYER),
+                    b -> InventoryHelper.transferAll(client, InventoryHelper.Target.PLAYER),
+                    b -> InventoryHelper.throwAll(client, InventoryHelper.Target.PLAYER));
+            }
+        } else {
+            int[] bounds = getGroupBounds(handler, player, false);
             if (bounds != null) {
-                int btnX = x + bounds[2] - BTN_SIZE * 3 - BTN_GAP * 2;
-                int btnY = y + bounds[1] - BTN_SIZE - 2;
-                if (isInside(mouseX, mouseY, btnX, btnY, BTN_SIZE, BTN_SIZE))
-                    return InventoryHelper.sortInventory(client, InventoryHelper.Target.CONTAINER);
-                if (isInside(mouseX, mouseY, btnX + BTN_SIZE + BTN_GAP, btnY, BTN_SIZE, BTN_SIZE))
-                    return InventoryHelper.throwAll(client, InventoryHelper.Target.CONTAINER);
-                if (isInside(mouseX, mouseY, btnX + (BTN_SIZE + BTN_GAP) * 2, btnY, BTN_SIZE, BTN_SIZE))
-                    return InventoryHelper.transferAll(client, InventoryHelper.Target.CONTAINER);
+                addHorizontalBtnGroup(buttons, bounds[2], bounds[3] + 4, 14, 4,
+                    b -> InventoryHelper.sortInventory(client, InventoryHelper.Target.PLAYER),
+                    b -> InventoryHelper.transferAll(client, InventoryHelper.Target.PLAYER),
+                    b -> InventoryHelper.throwAll(client, InventoryHelper.Target.PLAYER));
             }
         }
 
-        int[] bounds = getGroupBounds(handler, client.player, false);
-        if (bounds != null) {
-            int btnX = x + bounds[2] - BTN_SIZE * 3 - BTN_GAP * 2;
-            int btnY = y + bounds[1] - BTN_SIZE - 2;
-            if (isInside(mouseX, mouseY, btnX, btnY, BTN_SIZE, BTN_SIZE))
-                return InventoryHelper.sortInventory(client, InventoryHelper.Target.PLAYER);
-            if (isInside(mouseX, mouseY, btnX + BTN_SIZE + BTN_GAP, btnY, BTN_SIZE, BTN_SIZE))
-                return InventoryHelper.throwAll(client, InventoryHelper.Target.PLAYER);
-            if (isInside(mouseX, mouseY, btnX + (BTN_SIZE + BTN_GAP) * 2, btnY, BTN_SIZE, BTN_SIZE))
-                return InventoryHelper.transferAll(client, InventoryHelper.Target.PLAYER);
-        }
+        return buttons;
+    }
 
-        return false;
+    private static void addHorizontalBtnGroup(List<ButtonWidget> buttons, int rightX, int y, int size, int gap,
+                                               Consumer<ButtonWidget> sort, Consumer<ButtonWidget> transfer, Consumer<ButtonWidget> drop) {
+        int totalW = size * 3 + gap * 2;
+        int x = rightX - totalW - 4;
+        addBtn(buttons, x + OFFSET_S_X, y + OFFSET_S_Y, size, size, "S", sort);
+        addBtn(buttons, x + size + gap + OFFSET_C_X, y + OFFSET_C_Y, size, size, "C", transfer);
+        addBtn(buttons, x + (size + gap) * 2 + OFFSET_T_X, y + OFFSET_T_Y, size, size, "T", drop);
+    }
+
+    private static void addBtn(List<ButtonWidget> buttons, int x, int y, int w, int h, String text, Consumer<ButtonWidget> onClick) {
+        ButtonWidget btn = ButtonWidget.builder(Text.literal(text), onClick::accept)
+            .dimensions(x, y, w, h).build();
+        BUTTON_TYPES.put(btn, text);
+        buttons.add(btn);
+    }
+
+    public static void clearButtons() {
+        BUTTON_TYPES.clear();
+        dragging = null;
     }
 
     private static boolean hasContainerSlots(ScreenHandler handler, ClientPlayerEntity player) {
@@ -90,26 +163,9 @@ public class InventoryUI {
         return found ? new int[]{minX, minY, maxX, maxY} : null;
     }
 
-    private static void drawButtons(DrawContext context, MinecraftClient client, ScreenHandler handler, ClientPlayerEntity player, int screenX, int screenY, boolean container, int mouseX, int mouseY) {
-        int[] bounds = getGroupBounds(handler, player, container);
-        if (bounds == null) return;
-
-        int btnX = screenX + bounds[2] - BTN_SIZE * 3 - BTN_GAP * 2;
-        int btnY = screenY + bounds[1] - BTN_SIZE - 2;
-
-        drawButton(context, client, btnX, btnY, "S", isInside(mouseX, mouseY, btnX, btnY, BTN_SIZE, BTN_SIZE));
-        drawButton(context, client, btnX + BTN_SIZE + BTN_GAP, btnY, "T", isInside(mouseX, mouseY, btnX + BTN_SIZE + BTN_GAP, btnY, BTN_SIZE, BTN_SIZE));
-        drawButton(context, client, btnX + (BTN_SIZE + BTN_GAP) * 2, btnY, "M", isInside(mouseX, mouseY, btnX + (BTN_SIZE + BTN_GAP) * 2, btnY, BTN_SIZE, BTN_SIZE));
-    }
-
-    private static boolean isInside(double mx, double my, int x, int y, int w, int h) {
-        return mx >= x && mx < x + w && my >= y && my < y + h;
-    }
-
-    private static void drawButton(DrawContext context, MinecraftClient client, int x, int y, String label, boolean hovered) {
-        int bg = hovered ? 0xC0FFFFFF : 0xC0000000;
-        context.fill(x, y, x + BTN_SIZE, y + BTN_SIZE, bg);
-        int color = hovered ? 0xFFFFFF : 0xAAAAAA;
-        context.drawText(client.textRenderer, Text.literal(label), x + 5, y + 4, color, false);
+    static class InventoryUIConfig {
+        int s_x = 0, s_y = 0;
+        int c_x = 0, c_y = 0;
+        int t_x = 0, t_y = 0;
     }
 }
