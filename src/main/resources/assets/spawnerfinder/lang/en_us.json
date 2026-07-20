@@ -1,0 +1,8 @@
+{
+    "key.spawnerfinder.toggle": "Toggle Spawner Finder",
+    "key.spawnerfinder.cycle": "Cycle display mode (ESP/Beam/HUD)",
+    "key.spawnerfinder.nightvision": "Toggle Night Vision",
+    "key.spawnerfinder.autotrade": "Toggle Auto Trade",
+    "key.spawnerfinder.scanextra": "Toggle Extra Scan (Chests, Pillagers, Structures)",
+    "category.spawnerfinder": "Spawner Finder"
+}

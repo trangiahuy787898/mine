@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,6 +18,8 @@ public class InventoryHelper {
     public static void tick(MinecraftClient client) {
         if (cooldown > 0) cooldown--;
     }
+
+    public static boolean isOnCooldown() { return cooldown > 0; }
 
     public static boolean sortInventory(MinecraftClient client, Target target) {
         if (cooldown > 0) return false;
@@ -42,9 +43,9 @@ public class InventoryHelper {
 
         for (Slot slot : targetSlots) {
             if (!slot.getStack().isEmpty())
-                client.interactionManager.clickSlot(handler.syncId, slot.id, 0, SlotActionType.QUICK_MOVE, player);
+                handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
         }
-        client.interactionManager.clickSlot(handler.syncId, -999, 0, SlotActionType.PICKUP, player);
+        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
 
         for (ItemStack desired : items) {
             for (Slot slot : handler.slots) {
@@ -52,12 +53,12 @@ public class InventoryHelper {
                     ? (slot.inventory == player.getInventory() && slot.getIndex() < 36)
                     : (slot.inventory != player.getInventory());
                 if (isOtherSlot && !slot.getStack().isEmpty() && slot.getStack().getItem() == desired.getItem()) {
-                    client.interactionManager.clickSlot(handler.syncId, slot.id, 0, SlotActionType.QUICK_MOVE, player);
+                    handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
                     break;
                 }
             }
         }
-        client.interactionManager.clickSlot(handler.syncId, -999, 0, SlotActionType.PICKUP, player);
+        handler.onSlotClick(-999, 0, SlotActionType.PICKUP, player);
         return true;
     }
 
@@ -71,10 +72,8 @@ public class InventoryHelper {
 
         List<Slot> targetSlots = getSlotsForTarget(handler, player, target);
         for (Slot slot : targetSlots) {
-            if (!slot.getStack().isEmpty()) {
-                if (target == Target.PLAYER && isArmorOrEquipped(slot, player)) continue;
-                client.interactionManager.clickSlot(handler.syncId, slot.id, 0, SlotActionType.THROW, player);
-            }
+            if (!slot.getStack().isEmpty())
+                handler.onSlotClick(slot.id, 1, SlotActionType.THROW, player);
         }
         return true;
     }
@@ -89,17 +88,10 @@ public class InventoryHelper {
 
         List<Slot> targetSlots = getSlotsForTarget(handler, player, target);
         for (Slot slot : targetSlots) {
-            if (!slot.getStack().isEmpty()) {
-                if (target == Target.PLAYER && isArmorOrEquipped(slot, player)) continue;
-                client.interactionManager.clickSlot(handler.syncId, slot.id, 0, SlotActionType.QUICK_MOVE, player);
-            }
+            if (!slot.getStack().isEmpty())
+                handler.onSlotClick(slot.id, 0, SlotActionType.QUICK_MOVE, player);
         }
         return true;
-    }
-
-    private static boolean isArmorOrEquipped(Slot slot, ClientPlayerEntity player) {
-        int idx = slot.getIndex();
-        return idx >= 36 && idx < 40;
     }
 
     private static List<Slot> getSlotsForTarget(ScreenHandler handler, ClientPlayerEntity player, Target target) {
