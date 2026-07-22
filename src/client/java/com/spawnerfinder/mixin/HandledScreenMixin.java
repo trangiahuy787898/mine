@@ -1,6 +1,7 @@
 package com.spawnerfinder.mixin;
 
 import com.spawnerfinder.InventoryUI;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
@@ -25,12 +26,10 @@ public class HandledScreenMixin {
         InventoryUI.onRender(self, x, y, backgroundWidth, backgroundHeight, context, mouseX, mouseY, delta);
     }
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "mouseClicked(Lnet/minecraft/client/gui/Click;Z)Z", at = @At("HEAD"))
+    private void onMouseClicked(Click click, boolean bool, CallbackInfoReturnable<Boolean> cir) {
         HandledScreen<?> self = (HandledScreen<?>) (Object) this;
         if (self instanceof MerchantScreen) return;
-        if (InventoryUI.onMouseClicked(x, y, backgroundWidth, backgroundHeight, mouseX, mouseY, button)) {
-            cir.setReturnValue(true);
-        }
+        InventoryUI.onMouseClicked(x, y, backgroundWidth, backgroundHeight, click.x(), click.y(), click.button());
     }
 }

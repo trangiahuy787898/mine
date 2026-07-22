@@ -35,7 +35,7 @@ public class SpawnerRenderer implements WorldRenderEvents.BeforeEntities {
 
     @Override
     public void beforeEntities(WorldRenderContext context) {
-        if (!SpawnerFinderMod.enabled) return;
+        if (!SpawnerFinderMod.enabled && !SpawnerFinderMod.scanExtra) return;
         if (!SpawnerFinderMod.showBeam && !SpawnerFinderMod.showESP) return;
 
         MinecraftClient client = MinecraftClient.getInstance();

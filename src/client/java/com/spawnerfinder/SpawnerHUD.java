@@ -14,7 +14,7 @@ import java.util.List;
 public class SpawnerHUD implements HudRenderCallback {
     @Override
     public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
-        if (!SpawnerFinderMod.enabled) return;
+        if (!SpawnerFinderMod.enabled && !SpawnerFinderMod.scanExtra) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayerEntity player = client.player;

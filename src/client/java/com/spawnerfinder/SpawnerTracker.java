@@ -221,18 +221,23 @@ public class SpawnerTracker {
     }
 
     private static void rebuildDisplayLists() {
-        synchronized (SpawnerFinderMod.foundSpawners) {
-            SpawnerFinderMod.foundSpawners.clear();
-            for (List<SpawnerInfo> list : spawnerCache.values()) {
-                SpawnerFinderMod.foundSpawners.addAll(list);
+        if (SpawnerFinderMod.enabled) {
+            synchronized (SpawnerFinderMod.foundSpawners) {
+                SpawnerFinderMod.foundSpawners.clear();
+                for (List<SpawnerInfo> list : spawnerCache.values()) {
+                    SpawnerFinderMod.foundSpawners.addAll(list);
+                }
+                lastSpawnerCount = SpawnerFinderMod.foundSpawners.size();
             }
-            lastSpawnerCount = SpawnerFinderMod.foundSpawners.size();
-        }
-        synchronized (SpawnerFinderMod.foundShulkers) {
-            SpawnerFinderMod.foundShulkers.clear();
-            for (List<SpawnerInfo> list : shulkerCache.values()) {
-                SpawnerFinderMod.foundShulkers.addAll(list);
+            synchronized (SpawnerFinderMod.foundShulkers) {
+                SpawnerFinderMod.foundShulkers.clear();
+                for (List<SpawnerInfo> list : shulkerCache.values()) {
+                    SpawnerFinderMod.foundShulkers.addAll(list);
+                }
             }
+        } else {
+            synchronized (SpawnerFinderMod.foundSpawners) { SpawnerFinderMod.foundSpawners.clear(); }
+            synchronized (SpawnerFinderMod.foundShulkers) { SpawnerFinderMod.foundShulkers.clear(); }
         }
         synchronized (SpawnerFinderMod.foundChests) {
             SpawnerFinderMod.foundChests.clear();
